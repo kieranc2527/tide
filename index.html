@@ -496,13 +496,21 @@ function setMediaSession(s){
     var u=artUrl(s);
     navigator.mediaSession.metadata=new MediaMetadata({title:s.title,artist:s.artist,album:s.album||'',artwork:u?[{src:u,sizes:'512x512',type:s.art.type||'image/jpeg'}]:[]});
   }catch(e){}
+  registerMediaHandlers();
 }
-if('mediaSession' in navigator){
+/* iOS lock screen: show previous/next track instead of skip-15s. The seek handlers are cleared on
+   purpose, and everything is re-registered whenever a song starts, because a Home Screen app on iOS
+   drops the track buttons after a song ends and the next one starts by itself (WebKit bug 261858). */
+function registerMediaHandlers(){
+  if(!('mediaSession' in navigator))return;
   [['play',function(){audio.play().catch(function(){});}],['pause',function(){audio.pause();}],
    ['previoustrack',prev],['nexttrack',function(){next(false);}],
+   ['seekbackward',null],['seekforward',null],
    ['seekto',function(d){if(d&&d.seekTime!=null)audio.currentTime=d.seekTime;}]
   ].forEach(function(h){try{navigator.mediaSession.setActionHandler(h[0],h[1]);}catch(e){}});
 }
+registerMediaHandlers();
+audio.addEventListener('playing',function(){if(current)setMediaSession(current);});
 
 /* ---------- now playing UI ---------- */
 function updateNow(){

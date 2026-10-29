@@ -1,5 +1,5 @@
 // Tide service worker: lets the app open with no internet once it's been opened once.
-const CACHE = 'tide-v1';
+const CACHE = 'tide-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
